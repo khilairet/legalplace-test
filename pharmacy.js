@@ -1,8 +1,17 @@
 export class Drug {
-  constructor(name, expiresIn, benefit) {
+  constructor(name, expiresIn, benefit, config = {}) {
     this.name = name;
     this.expiresIn = expiresIn;
     this.benefit = benefit;
+
+    this.config = {
+      benefitRate: -1,
+      thresholds: [],
+      expiredValue: undefined,
+      expiredRate: -2,
+      frozen: false,
+      ...config,
+    };
   }
 }
 
@@ -11,7 +20,31 @@ export class Pharmacy {
     this.drugs = drugs;
   }
 
-  updateBenefitValue() {
+  // Optimized implementation by business rules
+  updateBenefitValueWithThresholds() {
+    for (const drug of this.drugs) {
+      if (drug.config.frozen) continue;
+
+      let beneficeDif = drug.config.benefitRate;
+      for (const threshold of drug.config.thresholds) {
+        if (drug.expiresIn <= threshold.expiresIn) {
+          beneficeDif += threshold.rate;
+        }
+      }
+
+      drug.benefit = this.clamp(drug.benefit + beneficeDif);
+      drug.expiresIn = drug.expiresIn - 1;
+
+      if (drug.expiresIn < 0) {
+        drug.benefit = drug.config.expiredValue ?? this.clamp(drug.benefit + drug.config.expiredRate);
+      }
+    }
+
+    return this.drugs;
+  }
+
+  // Optimized legacy implementation for backward compatibility
+  legacyUpdateBenefitValue() {
     for (const drug of this.drugs) {
       if (drug.name === "Magic Pill") {
         continue;
