@@ -2,6 +2,24 @@
 
 You are a new developer in the Falcon team, and your first job is to add a feature to an old existing piece of code.
 
+## Business Rules Update
+
+> The legacy implementation has been kept for backward compatibility, while a new configuration-driven implementation has been introduced to simplify future business rule changes.
+
+To support new business requirements and improve maintainability, the item update logic has been refactored to be configuration-driven rather than relying on item names and nested conditions.
+
+Each drug now defines its behavior through a set of properties:
+
+| Property       | Description                                            |
+| -------------- | ------------------------------------------------------ |
+| `benefitRate`  | Benefit evolution before expiration                    |
+| `thresholds`   | Additional benefit adjustments based on remaining days |
+| `expiredRate`  | Benefit evolution after expiration                     |
+| `expiredValue` | Fixed benefit value after expiration                   |
+| `frozen`       | Indicates that the item never changes                  |
+
+This approach follows the **Open/Closed Principle**: new drugs can be introduced without modifying the update algorithm itself.
+
 ## System specifications
 
 Hi and welcome to the team. We are in the future, and Falcon has extended its activities by opening a pharmacy. Your task is to add a new feature to our system so that we can begin distributing a new drug. First an introduction to our system:
